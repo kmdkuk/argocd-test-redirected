@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: argocd-application-controller
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/cybozu/argocd
+        imagePullPolicy: IfNotPresent
+        name: argocd-application-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-redis
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/cybozu/redis
+        imagePullPolicy: IfNotPresent
+        name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-repo-server
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/cybozu/argocd
+        imagePullPolicy: IfNotPresent
+        name: argocd-repo-server
+        command:
+        - argocd-repo-server
+        - --redis
+        - argocd-redis:6379
+      initContainers:
+      - image: quay.io/cybozu/argocd
+        imagePullPolicy: IfNotPresent
+        name: copyutil
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/cybozu/argocd
+        imagePullPolicy: IfNotPresent
+        name: argocd-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-dex-server
+spec:
+  template:
+    spec:
+      containers:
+      - name: dex
+        image: quay.io/cybozu/dex
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - image: quay.io/cybozu/argocd
+        imagePullPolicy: IfNotPresent
+        name: copyutil
