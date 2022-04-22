@@ -25,8 +25,8 @@ setup: $(KUBECTL) $(KUSTOMIZE) $(ARGOCD)
 	$(KUBECTL) wait -n argocd deploy/argocd-server --for condition=available --timeout 3m
 	sleep 10
 	$(ARGOCD) login localhost:30080 --insecure --username admin --password $(shell make get-argocd-password)
-#	 $(ARGOCD) app create argocd-config --upsert --repo https://github.com/kmdkuk/kind-cluster.git --path argocd-config/base \
-#				--dest-namespace argocd --dest-server https://kubernetes.default.svc --sync-policy none --revision main
+	$(ARGOCD) app create argocd-config --upsert --repo https://github.com/kmdkuk/argocd-test.git --path argocd-config/base \
+				--dest-namespace argocd --dest-server https://kubernetes.default.svc --sync-policy none --revision main
 
 .PHONY: stop
 stop: $(KIND)
